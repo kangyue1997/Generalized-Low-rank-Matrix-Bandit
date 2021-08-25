@@ -1,5 +1,5 @@
 from LowESTR import *
-from LowSGD_TS import *
+from stage2_GESTS import *
 from stage2_GESTT import *
 import warnings
 import concurrent.futures
