@@ -1,6 +1,5 @@
 from stage1 import *
 from sklearn.linear_model import LogisticRegression
-import math
 
 def g_function(X,theta,model,lambd2,lambd2_perp,k):
     g1 = getattr(reward_model(), 'mu_' + model)
