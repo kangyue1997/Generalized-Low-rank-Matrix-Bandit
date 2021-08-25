@@ -1,6 +1,6 @@
-from LowOFUL import *
+from LowESTR import *
 from LowSGD_TS import *
-from stage2_ESTT import *
+from stage2_GESTT import *
 import warnings
 warnings.filterwarnings("ignore")
 
