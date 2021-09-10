@@ -102,7 +102,7 @@ def para_func_fix(nn):
 
 
 
-if context:
+if not context:
     with concurrent.futures.ProcessPoolExecutor() as executor:
         secs = [nn for nn in range(n_sim)]
         results = executor.map(para_func_fix, secs)
