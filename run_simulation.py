@@ -82,14 +82,15 @@ for nn in range(n_sim):
     bandit1 = gcontext(n_vec, r, Theta, seed_value = seed_start1, U_full = U_full, V_full = V_full, x = ux, rot = False)
     cum_reg_sgdts = tune_lowsgdts(bandit1, dist='ber', T = T, d = bandit1.d, model = model, context = context, true_theta= Theta, seed_start=seed_start1, paras= parameters, r = r, rot= False)
     print(np.array(cum_reg_sgdts))
-    stage_1 = explore(n_vec, d1, d2, T1, Theta, ux.reshape(n_vec, -1), sigma, lambd, gamma=0.1, r=r, model=model)
-    stage_1.run()
-    stage_2 = LowOFUL(n_vec, d1, d2, r, Theta, ux.reshape(n_vec, -1), sigma, stage_1.U_hat, stage_1.V_hat,
+    if not context:
+        stage_1 = explore(n_vec, d1, d2, T1, Theta, ux.reshape(n_vec, -1), sigma, lambd, gamma=0.1, r=r, model=model)
+        stage_1.run()
+        stage_2 = LowOFUL(n_vec, d1, d2, r, Theta, ux.reshape(n_vec, -1), sigma, stage_1.U_hat, stage_1.V_hat,
                     stage_1.U_hat_perp, stage_1.V_hat_perp,
                     T2, delta=delta, lam=lambd2_oful, lam_perp=lambd2_perp_oful, B=S, B_perp=S_perp, model=model)
-    stage_2.run()
-    cum_reg_oful = np.concatenate((stage_1.cum_regret, [a + stage_1.cum_regret[-1] for a in stage_2.cum_regret]), axis=None)
-    print(np.array(cum_reg_oful))
+        stage_2.run()
+        cum_reg_oful = np.concatenate((stage_1.cum_regret, [a + stage_1.cum_regret[-1] for a in stage_2.cum_regret]), axis=None)
+        print(np.array(cum_reg_oful))
     reg_lowglmucb_proj = tune_lowGLMUCB(parameters, T2, n_vec, d1, d2, ux, model, Theta, lambd2, lambd2_perp, delta, S,
                                     S_perp, context, U_hat, U_hat_perp, V_hat,
                                     V_hat_perp, c_mu, S, k_mu, ymax, seed_start=seed_start2, projgd=True,
