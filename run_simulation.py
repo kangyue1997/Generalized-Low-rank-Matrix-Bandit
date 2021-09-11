@@ -77,6 +77,7 @@ for nn in range(n_sim):
     if context:
         ux = None
     bandit = gcontext(n_vec, r, Theta, seed_value = seed_start2, U_full = U_full, V_full = V_full, x = ux)
+    cum_reg_lowsgdts[:T1] = stage1.cum_regret
     cum_reg_lowsgdts[T1:] = stage1.cum_regret[-1]+tune_lowsgdts(bandit, dist='ber', T = T2, d = bandit.d, model = model, context = context, true_theta= Theta, seed_start=seed_start2, paras= parameters, r = r)
     print(np.array(cum_reg_lowsgdts))
     bandit1 = gcontext(n_vec, r, Theta, seed_value = seed_start1, U_full = U_full, V_full = V_full, x = ux, rot = False)
