@@ -12,7 +12,6 @@ d1, d2, r = 10, 10, 2
 d = 10
 p = d1*d2
 dom_d = r*(d1+d2-r)
-Theta = np.zeros([d1,d2])
 v1 = np.random.normal(0,1,[d1,1])
 v1 /= np.linalg.norm(v1)
 v2 = np.random.normal(0,1,[d1,1])
@@ -20,6 +19,9 @@ v2 = v2 - np.sum(v2*v1)*v1
 v2 /= np.linalg.norm(v2)
 Theta = 3*v1.dot(v1.T) + 3*v2.dot(v2.T)
 Wr = 3
+# Theta = np.zeros([d1,d2])
+# Theta[0,0] = 0.8
+# Wr = 1
 T = 45000
 T1 = 1200
 T2 = T-T1
@@ -119,6 +121,14 @@ if not context:
     print('Context=F, LowESTR: {0}'.format(sum(res3) / n_sim))
     print('Context=F, G-ESTT: {0}'.format(sum(res4) / n_sim))
     print('\n')
+    low_sgdts_sd = pd.DataFrame(res1).std().tolist()
+    sgdts_sd = pd.DataFrame(res2).std().tolist()
+    lowoful_sd = pd.DataFrame(res3).std().tolist()
+    gestt_sd = pd.DataFrame(res4).std().tolist()
+    df = pd.DataFrame({'low_sgdts' : sum(res1)/n_sim, 'sgdts': sum(res2)/n_sim, 'lowoful' : sum(res3)/n_sim, 'gestt': sum(res4)/n_sim', low_sgdts_sd': low_sgdts_sd, 'sgdts_sd': sgdts_sd,
+                       'lowoful_sd': lowoful_sd, 'gestt_sd': gestt_sd})
+    df.to_csv('../saved_result/d10_r2_arm2000.csv')
+        
 else:
     with concurrent.futures.ProcessPoolExecutor() as executor:
         secs = [nn for nn in range(n_sim)]
@@ -133,6 +143,11 @@ else:
     print('Context=F, SGD-TS: {0}'.format(sum(res2) / n_sim))
     print('Context=F, G-ESTT: {0}'.format(sum(res3) / n_sim))
     print('\n')
+    low_sgdts_sd = pd.DataFrame(res1).std().tolist()
+    sgdts_sd = pd.DataFrame(res2).std().tolist()
+    gestt_sd = pd.DataFrame(res3).std().tolist()
+    df = pd.DataFrame({'low_sgdts' : sum(res1)/n_sim, 'sgdts': sum(res2)/n_sim, 'gestt' : sum(res3)/n_sim, 'low_sgdts_sd': low_sgdts_sd, 'sgdts_sd': sgdts_sd, 'gestt_sd': gestt_sd})
+    df.to_csv('../saved_result/d10_r2_arm2000.csv')
 
 
 
