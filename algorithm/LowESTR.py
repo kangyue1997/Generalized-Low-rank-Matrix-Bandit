@@ -3,6 +3,7 @@ import math
 from scipy import linalg
 from stage1 import *
 
+# adapted from the codes by Yangyi Lu, Amirhossein Meisami, Ambuj Tewari in their work "Low-Rank Generalized Linear Bandit Problems"
 # explore the low rank subspace
 class explore:
     def __init__(self, k, d1, d2, iters, theta, X, sigma, lam, gamma, r, model):
