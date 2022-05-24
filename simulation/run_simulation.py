@@ -58,7 +58,7 @@ for nn in range(n_sim):
     cum_reg_lowsgdts = np.zeros(shape=[T])
     seed_start1 = nn * T
     seed_start2 = seed_start1 + T1
-    np.random.seed(nn+10000000)
+    np.random.seed(nn)
     ux = np.random.normal(0, 1, size=[n_vec, d1, d2])
     for i in range(n_vec):
         ux[i, :, :] /= np.linalg.norm(ux[i, :, :])
