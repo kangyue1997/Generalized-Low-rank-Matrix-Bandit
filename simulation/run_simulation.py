@@ -24,9 +24,13 @@ Wr = 3
 T = 45000
 T1 = 1200
 T2 = T-T1
+
+# whether the feature vector varies
 context = False
 lambd = 0.0069  
 lambd_oful = 0.01*math.sqrt(1/T1)
+
+# use Peaceman for optimization
 IsPeaceman = True
 delta = 0.01
 sigma = 0.01
@@ -43,6 +47,8 @@ lambd2_perp = c_mu*S2**2*T2/(dom_d*math.log(1+c_mu*S**2*T2/(dom_d*lambd2)))
 lambd2_oful = 1  #oful
 lambd2_perp_oful = T2/dom_d/math.log(1+T2/lambd2)  #oful
 print("lambda: {0}".format(lambd))
+
+# for G-ESTT with LowGLM-UCB, whether reuse the samples in stage 1 for stage 2
 history = True
 
 
@@ -52,6 +58,12 @@ parameters = {
         'C': [1,3,5,7], #list(range(1,11)),
         'rho': [0.2,1,5]
     }
+
+reg_oful = np.zeros(T)
+reg_sgdts = np.zeros(T)
+reg_gestt = np.zeros(T)
+reg_gests = np.zeros(T)
+
 
 for nn in range(n_sim):
 #   print("Total of replication: {0}".format(nn))
@@ -82,9 +94,11 @@ for nn in range(n_sim):
     cum_reg_lowsgdts[:T1] = stage1.cum_regret
     cum_reg_lowsgdts[T1:] = stage1.cum_regret[-1]+tune_lowsgdts(bandit, dist='ber', T = T2, d = bandit.d, model = model, context = context, true_theta= Theta, seed_start=seed_start2, paras= parameters, r = r)
     print(np.array(cum_reg_lowsgdts))
+    reg_gests += np.array(cum_reg_lowsgdts)
     bandit1 = gcontext(n_vec, r, Theta, seed_value = seed_start1, U_full = U_full, V_full = V_full, x = ux, rot = False)
     cum_reg_sgdts = tune_lowsgdts(bandit1, dist='ber', T = T, d = bandit1.d, model = model, context = context, true_theta= Theta, seed_start=seed_start1, paras= parameters, r = r, rot= False)
     print(np.array(cum_reg_sgdts))
+    reg_sgdts += np.array(cum_reg_sgdts)
     if not context:
         stage_1 = explore(n_vec, d1, d2, T1, Theta, ux.reshape(n_vec, -1), sigma, lambd, gamma=0.1, r=r, model=model)
         stage_1.run()
@@ -93,6 +107,7 @@ for nn in range(n_sim):
                     T2, delta=delta, lam=lambd2_oful, lam_perp=lambd2_perp_oful, B=S, B_perp=S_perp, model=model)
         stage_2.run()
         cum_reg_oful = np.concatenate((stage_1.cum_regret, [a + stage_1.cum_regret[-1] for a in stage_2.cum_regret]), axis=None)
+        reg_oful += np.array(cum_reg_oful)
         print(np.array(cum_reg_oful))
     reg_lowglmucb_proj = tune_lowGLMUCB(parameters, T2, n_vec, d1, d2, ux, model, Theta, lambd2, lambd2_perp, delta, S,
                                     S_perp, context, U_hat, U_hat_perp, V_hat,
@@ -100,8 +115,13 @@ for nn in range(n_sim):
                                     history=history, hisx=x, hisy=y)
     cum_reg_lowglmucb_proj = np.concatenate((stage1.cum_regret, [a + stage1.cum_regret[-1] for a in reg_lowglmucb_proj]),
                                         axis=None)
+    reg_gestt += np.array(cum_reg_lowglmucb_proj)
     print(np.array(cum_reg_lowglmucb_proj))
-
+ 
+if not context:
+    print('Average regret: SGD-TS: {}, LowOFUL: {}, G-ESTT: (), G-ESTS: ()'.format(reg_sgdts[-1]/n_sim,reg_oful[-1]/n_sim,reg_gestt[-1]/n_sim,reg_gests[-1]/n_sim))
+else:
+    print('Average regret: SGD-TS: {}, G-ESTT: (), G-ESTS: ()'.format(reg_sgdts[-1]/n_sim,reg_gestt[-1]/n_sim,reg_gests[-1]/n_sim))    
 
 
 
